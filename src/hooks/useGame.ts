@@ -33,7 +33,7 @@ type Action =
   | { type: 'undo' }
   | { type: 'redo' }
   | { type: 'seek'; index: number }
-  | { type: 'new'; seed: number; size: Size }
+  | { type: 'new'; seed?: number; size?: Size }
   | { type: 'dismissWin' }
 
 function reducer(state: State, action: Action): State {
@@ -49,7 +49,11 @@ function reducer(state: State, action: Action): State {
     case 'seek':
       return { ...state, game: seek(state.game, action.index) }
     case 'new':
-      return { game: createGame(action.seed, action.size), gameId: state.gameId + 1, dismissedWin: false }
+      return {
+        game: createGame(action.seed ?? randomSeed(), action.size ?? state.game.size),
+        gameId: state.gameId + 1,
+        dismissedWin: false,
+      }
     case 'dismissWin':
       return { ...state, dismissedWin: true }
   }
@@ -136,6 +140,19 @@ export function useGame() {
   const won = hasWon(board, target)
   const over = !won && isGameOver(board)
 
+  // dispatch is stable, so these identities never change — safe to use in effects and timers.
+  const actions = useMemo(
+    () => ({
+      move: (dir: Direction) => dispatch({ type: 'move', dir }),
+      undo: () => dispatch({ type: 'undo' }),
+      redo: () => dispatch({ type: 'redo' }),
+      seek: (index: number) => dispatch({ type: 'seek', index }),
+      newGame: (size?: Size, seed?: number) => dispatch({ type: 'new', seed, size }),
+      dismissWin: () => dispatch({ type: 'dismissWin' }),
+    }),
+    [],
+  )
+
   return {
     game,
     gameId,
@@ -148,12 +165,7 @@ export function useGame() {
     over,
     canUndo: canUndo(game),
     canRedo: canRedo(game),
-    move: (dir: Direction) => dispatch({ type: 'move', dir }),
-    undo: () => dispatch({ type: 'undo' }),
-    redo: () => dispatch({ type: 'redo' }),
-    seek: (index: number) => dispatch({ type: 'seek', index }),
-    newGame: (size: Size = game.size as Size, seed: number = randomSeed()) => dispatch({ type: 'new', seed, size }),
-    dismissWin: () => dispatch({ type: 'dismissWin' }),
+    ...actions,
   }
 }
 
