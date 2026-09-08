@@ -4,6 +4,26 @@
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 
+@theme {
+  --font-serif: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --color-kraft-50: #faf4e8;
+  --color-kraft-100: #f3e8d3;
+  --color-kraft-200: #e9d9bd;
+  --color-kraft-300: #d9c39d;
+  --color-kraft-400: #c3a375;
+  --color-kraft-500: #a58353;
+  --color-kraft-600: #7e6139;
+  --color-ink: #3b2c20;
+  --color-ink-soft: #6d5946;
+  --color-ember: #c8553d;
+  --color-ember-deep: #9b3a22;
+
+  --ease-spring: linear(0, 0.28 10%, 0.62 20%, 0.88 30%, 1.03 40%, 1.08 50%, 1.06 60%, 1.02 70%, 0.995 80%, 0.997 90%, 1);
+  --slide-ms: 150ms;
+}
+
 :root {
   color-scheme: light;
 }
@@ -16,6 +36,297 @@ body,
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background-color: var(--color-kraft-200);
+  background-image:
+    radial-gradient(120% 80% at 50% -10%, rgb(255 255 255 / 0.35), transparent 60%),
+    radial-gradient(90% 60% at 50% 110%, rgb(120 80 40 / 0.18), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0 0.1 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   -webkit-font-smoothing: antialiased;
+}
+
+.font-serif,
+.numerals {
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  font-feature-settings: 'onum' 1;
+}
+
+/* ---------- paper buttons ---------- */
+.btn {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium select-none;
+  @apply border border-kraft-400/70 bg-kraft-100 text-ink;
+  @apply transition-[transform,box-shadow,background-color] duration-150;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.6) inset,
+    0 2px 4px rgb(80 50 20 / 0.12);
+}
+.btn:hover:not(:disabled) {
+  @apply bg-kraft-50;
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.7) inset,
+    0 4px 10px rgb(80 50 20 / 0.16);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgb(80 50 20 / 0.15);
+}
+.btn:disabled {
+  @apply cursor-not-allowed opacity-45;
+}
+.btn:focus-visible,
+.field:focus-visible,
+.scrub:focus-visible {
+  @apply outline-none;
+  box-shadow: 0 0 0 3px var(--color-kraft-200), 0 0 0 5px var(--color-ember);
+}
+.btn-primary {
+  @apply border-ember-deep/60 bg-ember text-kraft-50;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: #d4614a;
+}
+.btn-quiet {
+  @apply border-transparent bg-transparent shadow-none text-ink-soft;
+}
+.btn-quiet:hover:not(:disabled) {
+  @apply bg-kraft-100/70;
+  box-shadow: none;
+  transform: none;
+}
+.btn-on {
+  @apply bg-ink text-kraft-50 border-ink;
+}
+.btn-on:hover:not(:disabled) {
+  @apply bg-ink;
+}
+
+.field {
+  @apply rounded-lg border border-kraft-400/70 bg-kraft-50 px-3 py-2 text-sm text-ink font-mono;
+  box-shadow: 0 1px 2px rgb(80 50 20 / 0.08) inset;
+}
+
+/* ---------- paper card ---------- */
+.card {
+  @apply rounded-xl border border-kraft-400/50 bg-kraft-100;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.6) inset,
+    0 8px 24px -8px rgb(80 50 20 / 0.35);
+}
+
+/* ---------- board ---------- */
+.board {
+  --gap: clamp(6px, 2.2cqw, 12px);
+  container-type: inline-size;
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #cdae82, #b99468);
+  box-shadow:
+    0 2px 0 rgb(255 255 255 / 0.25) inset,
+    0 -2px 0 rgb(0 0 0 / 0.08) inset,
+    0 14px 30px -10px rgb(70 40 10 / 0.45);
+  touch-action: none;
+  user-select: none;
+}
+.board-cells {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: var(--gap);
+  padding: var(--gap);
+}
+.board-cell {
+  border-radius: 8px;
+  background: rgb(70 45 20 / 0.14);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12) inset;
+}
+.tile-layer {
+  position: absolute;
+  inset: calc(var(--gap) / 2);
+}
+.slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% / var(--n));
+  height: calc(100% / var(--n));
+  padding: calc(var(--gap) / 2);
+  transform: translate(calc(var(--c) * 100%), calc(var(--r) * 100%));
+  transition: transform var(--slide-ms) var(--ease-spring);
+  will-change: transform;
+  z-index: 2;
+}
+.slot.ghost {
+  z-index: 1;
+}
+.paper {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-variation-settings: 'opsz' 48;
+  line-height: 1;
+  color: var(--tile-ink);
+  background: var(--tile-bg);
+  rotate: var(--tilt);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.45) inset,
+    0 -1px 0 rgb(0 0 0 / 0.05) inset,
+    0 3px 6px rgb(60 35 10 / 0.22),
+    0 8px 14px -6px rgb(60 35 10 / 0.3);
+}
+.paper.hot {
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.25) inset,
+    0 -1px 0 rgb(0 0 0 / 0.08) inset,
+    0 3px 6px rgb(60 35 10 / 0.28),
+    0 8px 18px -6px rgb(200 85 61 / 0.55);
+}
+.ghost .paper {
+  opacity: 0;
+  transition: opacity 90ms ease var(--slide-ms);
+}
+.spawned .paper {
+  animation: pop 220ms var(--ease-spring) var(--slide-ms) backwards;
+}
+.merged .paper {
+  animation: fold 300ms cubic-bezier(0.3, 0.7, 0.3, 1) var(--slide-ms);
+}
+.entering .paper {
+  animation: unfold 180ms var(--ease-spring);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.2) rotate(-14deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08) rotate(2deg);
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes fold {
+  0% {
+    transform: perspective(500px) rotateX(0deg) scale(1);
+  }
+  40% {
+    transform: perspective(500px) rotateX(-82deg) scale(1.04);
+  }
+  72% {
+    transform: perspective(500px) rotateX(0deg) scale(1.12);
+  }
+  100% {
+    transform: perspective(500px) rotateX(0deg) scale(1);
+  }
+}
+@keyframes unfold {
+  from {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ---------- overlay ---------- */
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgb(233 217 189 / 0.72);
+  backdrop-filter: blur(2px);
+  animation: veil-in 260ms ease 120ms backwards;
+}
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.veil .card {
+  animation: pop 320ms var(--ease-spring) 180ms backwards;
+}
+
+/* ---------- scrubber ---------- */
+.scrub {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 999px;
+}
+.scrub:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.scrub::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--color-ember) var(--fill), rgb(70 45 20 / 0.18) var(--fill));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15) inset;
+}
+.scrub::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgb(70 45 20 / 0.18);
+}
+.scrub::-moz-range-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-ember);
+}
+.scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -7px;
+  border-radius: 6px;
+  rotate: -4deg;
+  background: var(--color-kraft-50);
+  border: 1px solid var(--color-kraft-500);
+  box-shadow: 0 2px 5px rgb(60 35 10 / 0.3);
+  transition: transform 120ms ease;
+}
+.scrub::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--color-kraft-50);
+  border: 1px solid var(--color-kraft-500);
+  box-shadow: 0 2px 5px rgb(60 35 10 / 0.3);
+}
+.scrub:hover:not(:disabled)::-webkit-slider-thumb,
+.scrub:active:not(:disabled)::-webkit-slider-thumb {
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot,
+  .paper,
+  .veil,
+  .veil .card,
+  .btn {
+    transition: none !important;
+    animation: none !important;
+  }
 }
