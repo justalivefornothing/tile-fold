@@ -18,6 +18,11 @@ Slide tiles with the arrow keys, fold equal pairs together, and chase 2048. Ever
 - Board-size selector (3x3, 4x4, 5x5) running the same engine
 - Kraft-paper visual design: tilted paper tiles with soft shadows, oldstyle serif numerals (Fraunces), spring-eased slides and a paper "fold" flip on merge; respects `prefers-reduced-motion`
 
+<p>
+  <img src="docs/game-over.png" alt="Out of moves overlay over a blurred full board, offering Undo or New game" width="49%">
+  <img src="docs/mobile-5x5.png" alt="Fresh 5x5 board on a narrow phone-width layout" width="24%">
+</p>
+
 ## How it works
 
 The engine in `src/engine/` is a handful of pure functions with no React in sight. The only slide anyone ever writes is **slide left**. `traceRow` walks a row once, compressing non-zero cells toward index 0 and merging a cell into the previous output cell only if that cell has not already been produced by a merge this turn. That single flag is what makes `[2,2,2,2]` become `[4,4,0,0]` instead of `[8,0,0,0]`. To slide in any other direction, `slide(board, dir)` rotates the grid clockwise until that direction *is* left (down = 1 turn, right = 2, up = 3), slides every row, and rotates the result back. The trace (which input cell went to which output cell, and whether it folded into a neighbour) is rotated back the same way, so the UI knows exactly which tile moved where without any extra bookkeeping.
