@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 function read(key: string): number {
   try {
@@ -8,24 +8,20 @@ function read(key: string): number {
   }
 }
 
-/** Best score per board size, persisted to localStorage. */
+/** Best score per board size, persisted to localStorage. Derived during render; the effect only writes. */
 export function useBestScore(size: number, score: number): number {
   const key = `tilefold.best.${size}`
-  const [best, setBest] = useState(() => read(key))
+  const stored = read(key)
+  const best = Math.max(stored, score)
 
   useEffect(() => {
-    setBest(read(key))
-  }, [key])
-
-  useEffect(() => {
-    if (score <= best) return
-    setBest(score)
+    if (score <= stored) return
     try {
       window.localStorage.setItem(key, String(score))
     } catch {
-      /* private mode or quota — best score simply lives in memory */
+      /* private mode or quota exceeded — the best score simply lives in memory */
     }
-  }, [score, best, key])
+  }, [key, score, stored])
 
-  return Math.max(best, score)
+  return best
 }

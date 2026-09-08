@@ -18,7 +18,7 @@ const PALETTE: Record<number, Palette> = {
 }
 const BEYOND: Palette = { bg: '#3b2c20', ink: '#ffe6a8', hot: true }
 
-export function paletteFor(value: number): Palette {
+function paletteFor(value: number): Palette {
   return PALETTE[value] ?? BEYOND
 }
 
